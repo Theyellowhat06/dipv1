@@ -1,0 +1,13 @@
+.button{
+    padding: 20px;
+    background: #00B66A;
+    color: white;
+    border-radius: 10px;
+    width: 330px;
+    box-shadow: 1px 1px 10px 0px #00000050;
+    text-align: center;
+}
+
+.button .inacvtive{
+    background: #ccc;
+}
