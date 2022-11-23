@@ -1,9 +1,18 @@
-const mytest = () =>{
-    return (
-        <div>
-            <h1>mytest</h1>
-        </div>
-    );
+import type { ReactElement } from 'react'
+import MainLayout from '../../comps/layouts/main'
+
+import type { NextPageWithLayout } from '../_app'
+
+const Page: NextPageWithLayout = () => {
+  return <p>hello world</p>
 }
 
-export default mytest;
+Page.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <MainLayout>
+      {page}
+    </MainLayout>
+  )
+}
+
+export default Page

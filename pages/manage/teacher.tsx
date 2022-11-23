@@ -1,12 +1,14 @@
 import Button from "../../comps/Button";
-import Layout from "../../comps/Layout";
+import MainLayout from "../../comps/layouts/main";
 import Sidebar from "../../comps/Sidebar";
+import type { ReactElement } from 'react'
 
-export default function teacher(){
+import type { NextPageWithLayout } from '../_app'
+import Profilebar from "../../comps/Profilebar";
+
+const Page: NextPageWithLayout = () => {
     return(
-        <Layout>
-            <Sidebar choose='2'/>
-            <div className="w-full flex flex-col items-center justify-center">
+            <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center">
             <Button text="Нэмэх"></Button>
             <div>
             <table className="table-auto">
@@ -57,6 +59,15 @@ export default function teacher(){
 </table>
             </div>
             </div>
-        </Layout>
     );
 }
+
+Page.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <MainLayout index={2}>
+          {page}
+    </MainLayout>
+  )
+}
+
+export default Page

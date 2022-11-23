@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Button from "../../../comps/Button";
-import Layout from "../../../comps/Layout";
+import Layout from "../../../comps/layouts/main";
 import Sidebar from "../../../comps/Sidebar";
 
 export default function student(){

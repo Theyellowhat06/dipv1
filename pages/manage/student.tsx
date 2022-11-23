@@ -1,22 +1,25 @@
 import Link from "next/link";
 import Button from "../../comps/Button";
-import Layout from "../../comps/Layout";
+import MainLayout from "../../comps/layouts/main";
+import Layout from "../../comps/layouts/main";
 import Sidebar from "../../comps/Sidebar";
+import type { ReactElement } from 'react'
 
-export default function student(){
+import type { NextPageWithLayout } from '../_app'
+import Profilebar from "../../comps/Profilebar";
+
+const Page: NextPageWithLayout = () => {
     return(
-        <Layout>
-            <Sidebar choose='3'/>
             <div className="w-full flex flex-col items-center justify-center">
               <Link href={'/manage/add/student'}>
               <Button text="Нэмэх"></Button>
               </Link>
             
-            <div>
+            <div className="bg-red-500">
             <table className="table-auto">
   <thead>
     <tr>
-      <th>Код</th>
+      <th >Код</th>
       <th>Овог</th>
       <th>Нэр</th>
       <th>Төрөл</th>
@@ -61,6 +64,15 @@ export default function student(){
 </table>
             </div>
             </div>
-        </Layout>
     );
 }
+
+Page.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <MainLayout index={3}>
+          {page}
+    </MainLayout>
+  )
+}
+
+export default Page

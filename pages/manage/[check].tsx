@@ -7,24 +7,28 @@ import {useEffect} from 'react'
 import { useRouter } from 'next/router'
 
 import type { NextPageWithLayout } from '../_app'
+import DefaultLayout from '../../comps/layouts/default'
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter()
   const { data: session } = useSession()
+  
   useEffect(()=>{
+    console.log('hoho')
     if(!session){
+      router.push('/')
     }
   })
-  return <p className='bg-red-500 font-black'>hello world</p>
+  return <div></div>
 }
 
 Page.getLayout = function getLayout(page: ReactElement) {
   
   
   return (
-    <MainLayout index={0}>
+    <DefaultLayout index={0}>
           {page}
-    </MainLayout>
+    </DefaultLayout>
   )
 }
 
