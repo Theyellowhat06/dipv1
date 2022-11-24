@@ -12,7 +12,7 @@ const Page: NextPageWithLayout = () => {
                 <div className='rounded-full animate-spin h-96 w-96 absolute inset-0 border-dashed  border-2 border-white '></div>
                 <div className='h-48 w-48 m-24 absolute inset-0 bg-white rounded-full'></div>
                 <div className='h-48 w-48 m-24 animate-ping absolute inset-0 bg-white rounded-full'></div>
-                <img className='h-96 absolute inset-0 animate-wiggle' src='/img/hello.png'></img>
+                <img className='h-96 absolute inset-0 animate-wiggle' src='/img/icons/hello.png'></img>
             </div>
         </div>
         <div className='w-1/2 h-screen bg-white flex flex-col justify-center space-y-4 items-center'>

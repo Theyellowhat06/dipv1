@@ -34,12 +34,12 @@ export default function Sidebar({index}: any) {
     return (
         //<div className="w-1/6 p-8 h-screen bg-white flex flex-col justify-between">
         <div className="w-1/6 py-8 border-primary h-screen bg-white flex flex-col justify-between">
-            <div className="mx-8 p-4 flex row items-center text-3xl text-primary">
-                <AddTaskRoundedIcon/>
-                <div>ССА</div>
+            <div className="mr-16 rounded-r-full p-4 pl-12 flex row items-center text-4xl text-white bg-primary">
+                <img className='h-14' src="/img/icons/graduate.png"></img>
+                <div className="pl-2 font-bold">ССА</div>
             </div>
             <div className="ml-8">
-                <div className="text-xl px-8 py-4 font-semibold text-primary">
+                <div className="text-2xl px-8 py-4 font-semibold text-primary">
                     Цэс
                 </div>
                 {MENU_LIST.map((menu, i) => (

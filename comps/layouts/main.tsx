@@ -7,7 +7,7 @@ export default function MainLayout({children, index}: any) {
       
         <div className="flex w-screen h-screen bg-backgray font-body">
             <Sidebar index={index}/>
-      <div className="p-8 w-4/6">
+      <div className="p-4 w-4/6">
           {children}
       </div>
       <Profilebar/>
