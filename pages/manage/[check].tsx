@@ -11,13 +11,9 @@ import DefaultLayout from '../../comps/layouts/default'
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter()
-  const { data: session } = useSession()
   
   useEffect(()=>{
     console.log('hoho')
-    if(!session){
-      router.push('/')
-    }
   })
   return <div></div>
 }

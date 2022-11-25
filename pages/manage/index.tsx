@@ -12,10 +12,7 @@ import type { NextPageWithLayout } from '../_app'
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter()
-  const { data: session } = useSession()
   useEffect(()=>{
-    if(!session){
-    }
   })
   return <p className='bg-red-500 font-black'>hello world</p>
 }

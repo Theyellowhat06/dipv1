@@ -13,15 +13,12 @@ import DefaultLayout from '../comps/layouts/default'
 const Page: NextPageWithLayout = () => {
   
   const router = useRouter()
-  const { data: session } = useSession()
   useEffect(()=>{
-    sessionStorage.setItem('test', 'test');
-    console.log(sessionStorage.getItem('test'));
-    if(!session){
-      axios.get('https://retoolapi.dev/YhQvnM/data').then(res=>{
-        console.log(res.data);
-      })
-      //router.push('/login')
+    var token = localStorage.getItem('token');
+    console.log(token);
+    if(token == null){
+      console.log('is null')
+      router.push('/login')
     }
   })
   return <div></div>
