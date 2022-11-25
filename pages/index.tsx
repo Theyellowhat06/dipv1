@@ -5,15 +5,19 @@ import Sidebar from '../comps/Sidebar'
 import { useSession, signIn, signOut } from "next-auth/react"
 import {useEffect} from 'react'
 import { useRouter } from 'next/router'
+import { getSession } from './lib/get-session'
 
 import type { NextPageWithLayout } from './_app'
 
 const Page: NextPageWithLayout = () => {
+  
   const router = useRouter()
   const { data: session } = useSession()
   useEffect(()=>{
+    sessionStorage.setItem('test', 'test');
+    console.log(sessionStorage.getItem('test'));
     if(!session){
-      router.push('/login')
+      //router.push('/login')
     }
   })
   return <div></div>
