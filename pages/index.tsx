@@ -5,6 +5,7 @@ import Sidebar from '../comps/Sidebar'
 import { useSession, signIn, signOut } from "next-auth/react"
 import {useEffect} from 'react'
 import { useRouter } from 'next/router'
+import axios from 'axios'
 
 import type { NextPageWithLayout } from './_app'
 
@@ -13,7 +14,10 @@ const Page: NextPageWithLayout = () => {
   const { data: session } = useSession()
   useEffect(()=>{
     if(!session){
-      router.push('/login')
+      axios.get('https://retoolapi.dev/YhQvnM/data').then(res=>{
+        console.log(res.data);
+      })
+      //router.push('/login')
     }
   })
   return <div></div>
