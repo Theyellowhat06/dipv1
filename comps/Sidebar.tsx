@@ -16,7 +16,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 const MENU_LIST = [
     { icon: <WindowRoundedIcon/>, text: "Хяналтын самбар", href: "/manage" },
-    { icon: <BusinessCenterIcon/>, text: "Мэргэжил", href: "/manage" },
+    { icon: <BusinessCenterIcon/>, text: "Мэргэжил", href: "/manage/profession" },
     { icon: <PersonRoundedIcon/>, text: "Багш", href: "/manage/teacher" },
     { icon: <SchoolIcon/>, text: "Сонсогч", href: "/manage/student" },
     { icon: <Groups2RoundedIcon/>, text: "Анги", href: "#" },
@@ -28,15 +28,16 @@ const MENU_LIST = [
 
 
 export default function Sidebar({index}: any) {
-    const [navActive, setNavActive] = useState(false);
     const [activeIdx, setActiveIdx] = useState(index);
-    console.log(index);
     return (
         //<div className="w-1/6 p-8 h-screen bg-white flex flex-col justify-between">
         <div className="w-1/6 py-8 border-primary h-screen bg-white flex flex-col justify-between">
-            <div className="mr-16 rounded-r-full p-4 pl-12 flex row items-center text-4xl text-white bg-primary">
-                <img className='h-14' src="/img/icons/graduate.png"></img>
-                <div className="pl-2 font-bold">ССА</div>
+            <div className="mr-16 rounded-r-full p-4 pl-12 flex row items-center text-4xl text-white bg-gradient-to-r from-secondary to-primary">
+                <div className="border-[1px] rounded-full border-dashed">
+                    <img className='h-14' src="/img/icons/graduate.png"></img>
+                </div>
+                
+                <div className="pl-2 ">ССА</div>
             </div>
             <div className="ml-8">
                 <div className="text-2xl px-8 py-4 font-semibold text-primary">
@@ -45,7 +46,6 @@ export default function Sidebar({index}: any) {
                 {MENU_LIST.map((menu, i) => (
                     <div onClick={()=>{
                         setActiveIdx(i);
-                        setNavActive(false);
                     }} key={menu.text}>
                         <SideItem active={activeIdx === i} {...menu} />
                     </div>
