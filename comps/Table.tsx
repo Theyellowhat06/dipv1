@@ -9,6 +9,8 @@ import Modal from './Modal';
 import InputBordered from './InputBordered';
 import { useEffect, useState } from 'react';
 import ModalConfirm from './ModalConfrim';
+import axios from 'axios';
+import router, { useRouter } from 'next/router';
 
 interface TableData{
     title: string[],
@@ -99,7 +101,21 @@ export default function Table({title, data, name}: TableData){
                     </div>
                 </div>
               </Modal>
-              <ModalConfirm color='bg-primary' isVisible={showConfirm} onClose={()=>setShowConfirm(false)} button={<Button text='Тийм' extra='p-2 rounded-md' onClick={()=>{setShowConfirm(false); setShowModal(false)}}></Button>}>
+              <ModalConfirm color='bg-primary' isVisible={showConfirm} onClose={()=>setShowConfirm(false)} button={<Button text='Тийм' extra='p-2 rounded-md' onClick={()=>{
+                axios.post('/api/hello', {param: 'prof/add', data: formData}).then(res => {
+                  console.log(res.data);
+                  var result = res.data.result;
+                  if(result.success){
+                    console.log('result', result)
+                    location.reload();
+                    //localStorage.setItem('token', result.token)
+                    //localStorage.setItem('user', JSON.stringify(result.result))
+                    
+                    //router.push('/manage')
+                  }
+                })
+                setShowConfirm(false); setShowModal(false)}
+                }></Button>}>
                 Хадгалахдаа итгэлтэй байн уу?
               </ModalConfirm>
               <ModalConfirm color='bg-red-500' isVisible={showDelete} onClose={()=>setShowDelete(false)} button={<Button text='Устгах' extra='p-2 rounded-md bg-red-500 hover:bg-red-500/80 active:bg-red-500' onClick={()=>{setShowDelete(false)}}></Button>}>

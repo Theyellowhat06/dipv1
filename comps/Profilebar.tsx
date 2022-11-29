@@ -9,6 +9,7 @@ import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 
 export default function Profilebar() {
     const [user, setUser] = useState({fname: '...', lname: '...'})
+    const router = useRouter()
     useEffect(()=>{
         const str = localStorage.getItem('user')
         if(str != null){
@@ -17,6 +18,8 @@ export default function Profilebar() {
     },[])
     const logout = () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        router.push('/login')
     }
     return (
         <div className="w-1/6 bg-white flex flex-col space-y-4">
