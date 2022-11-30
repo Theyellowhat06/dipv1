@@ -40,6 +40,7 @@ import axios from 'axios'
 
 const Page: NextPageWithLayout = () => {
   const [tData, setTData] = useState<(any)[][]>();
+  const [token, setToken] = useState<any>('');
   const router = useRouter()
   const key = `mq0)l2t[8G}(=gvpOP$&oc'O,i_E^<`
   const title = ['Код', 'Нэр', 'Нэр (ENG)', 'Үргэлжилэх хугацаа', 'Төлбөр']
@@ -50,8 +51,9 @@ const Page: NextPageWithLayout = () => {
     ['HR', 'Хүний нөөцийн удирдлага', 'Human Resource Management', <div className='flex justify-center items-center'>3 сар</div>, <div className='flex justify-end items-center'>1,195,000.00₮</div>],
     ['CM', 'Соёлын удирдлага', 'Culture Management', <div className='flex justify-center items-center'>3 сар</div>, <div className='flex justify-end items-center'>300,000.00₮</div>],
   ]
-  const [token, setToken] = useState('')
+  
   const resData =()=>{
+    console.log(token)
     axios.post('/api/hello', {param: 'prof/getAll', token: token}).then(res => {
       console.log(res.data);
       var result = res.data.result;
@@ -75,26 +77,25 @@ const Page: NextPageWithLayout = () => {
   }
   
     useEffect(()=>{
-      var tk = localStorage.getItem('token');
-        
-        console.log(token)
-        if(tk != null){
-          setToken(tk)
+      setToken(localStorage.getItem('token'))
+        if(token != null && token != ''){
+          console.log('mytoken',token)
             try{
-                verify(token, key)
-                resData()
+              verify(token, key)
+              resData()
             }catch(e){
-              //router.push('/login')
+              console.log(e)
+              router.push('/login')
             }
-        }else{
-            //router.push('/login')
+        }else if(token == null){
+            router.push('/login')
         }
         
-    },[])
+    },[token])
   return <div>
   <div className='text-xl pl-4 pb-2'>Мэргэжилийн мэдээлэл</div>
   <div className='bg-white rounded-md'>
-      <Table title={title} data={tData} name='Мэргэжил' resData={resData} token={token}></Table>
+      <Table title={title} data={tData} name='Мэргэжил' resData={resData} token={token} param="prof"></Table>
   </div>
   </div>
 }

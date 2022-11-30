@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import ModalConfirm from './ModalConfrim';
 import axios from 'axios';
 import router, { useRouter } from 'next/router';
+import { toast } from 'react-toastify'
 
 interface TableData{
     title: string[],
@@ -18,33 +19,43 @@ interface TableData{
     name: string,
     resData: any,
     token: string,
+    param: string
 }
 
-export default function Table({title, data, name, resData, token}: TableData){
+export default function Table({title, data, name, resData, token, param}: TableData){
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('Шүүлтүүр')
     const [showModal, setShowModal] = useState(false)
+    const [showViewModal, setShowViewModal] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
-    const [showDelete, setShowDelete] = useState(false)
+    const [showDelete, setShowDelete] = useState(false) 
+    const [showView, setShowView] = useState(false)
+    const [showEdit, setShowEdit] = useState(false)
+    const [indexid, setIndexid] = useState({index: -1, id: -1}) 
     const [formData, setFormData] = useState([{name: '...', value: '...'}])
     
-    const viewData = (id: number) => {
+    const viewData = (id: number, isEdit: boolean) => {
       console.log('id', id);
-      axios.post('/api/hello', {param: 'prof/getById', token: token, id: id}).then(res => {
+      setIndexid({index: -1, id: id})
+      axios.post('/api/hello', {param: `${param}/getById`, token: token, id: id}).then(res => {
         console.log(res.data);
         var result = res.data.result;
         if(result.success){
           var temp = formData;
           temp.length = 0;
-          for(var key in result.result[0]){
-            console.log('mykey',key)
-            
-            
-            temp.push({name: key, value: result.result[0][key]})
+          for(var key in result.result.label){
+            temp.push({name: result.result.label[key], value: result.result[key]})
           }
           console.log('asdasd',temp)
           setFormData(temp)
           console.log('hh', formData)
+          if(isEdit){
+            setShowEditModal(true);
+          }else{
+            setShowViewModal(true);
+          }
+          
           //console.log('result', result)
           //resData()
           //rd()
@@ -114,9 +125,9 @@ export default function Table({title, data, name, resData, token}: TableData){
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.profession}</div></td>
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.class}</div></td> */}
                               <td className='w-16'><div className='flex justify-center p-2 bg-gray'>
-                                <div onClick={()=>{ console.log('hoho',row);viewData(row[0]);setShowModal(true);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
-                                <div onClick={()=>setShowModal(true)} className='p-2 ml-2 rounded-full hover:bg-primary/30 active:bg-primary/50 hover:text-white text-slate-500'><EditIcon/></div>
-                                <div onClick={()=>setShowDelete(true)} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div>
+                                <div onClick={()=>{viewData(row[0], false);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
+                                <div onClick={()=>{viewData(row[0], true);}} className='p-2 ml-2 rounded-full hover:bg-primary/30 active:bg-primary/50 hover:text-white text-slate-500'><EditIcon/></div>
+                                <div onClick={()=>{setIndexid({index: index, id: row[0]}); setShowDelete(true)}} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div>
                               </div></td>
                           </tr>
                       ))}
@@ -128,32 +139,71 @@ export default function Table({title, data, name, resData, token}: TableData){
                     <div className='px-4 pb-4 text-lg'>{name} нэмэх</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {formData.map((row, index)=>(
-                            <InputBordered type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
+                            <InputBordered disabled={false} type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
+                        ))}
+                    </div>
+                </div>
+              </Modal>
+              <Modal isVisible={showViewModal} onClose={()=>setShowViewModal(false)} buttons={[<Button onClick={()=>setShowViewModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
+                <div>
+                    <div className='px-4 pb-4 text-lg'>{name}</div>
+                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
+                        {formData.map((row, index)=>(
+                            <InputBordered disabled={true} type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
+                        ))}
+                    </div>
+                </div>
+              </Modal>
+              <Modal isVisible={showEditModal} onClose={()=>setShowEditModal(false)} buttons={[<Button text={'Засах'} extra={'p-2 rounded-md'} onClick={()=>setShowEdit(true)}/>, <Button onClick={()=>setShowEditModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
+                <div>
+                    <div className='px-4 pb-4 text-lg'>{name} засах</div>
+                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
+                        {formData.map((row, index)=>(
+                            <InputBordered disabled={false} type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
                         ))}
                     </div>
                 </div>
               </Modal>
               <ModalConfirm color='bg-primary' isVisible={showConfirm} onClose={()=>setShowConfirm(false)} button={<Button text='Тийм' extra='p-2 rounded-md' onClick={()=>{
-                axios.post('/api/hello', {param: 'prof/add', data: formData}).then(res => {
+                axios.post('/api/hello', {param: `${param}/add`, data: formData}).then(res => {
                   console.log(res.data);
                   var result = res.data.result;
                   if(result.success){
+                    toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
                     console.log('result', result)
                     resData()
-                    //rd()
-                    //location.reload();
-                    //localStorage.setItem('token', result.token)
-                    //localStorage.setItem('user', JSON.stringify(result.result))
-                    
-                    //router.push('/manage')
                   }
                 })
                 setShowConfirm(false); setShowModal(false)}
                 }></Button>}>
                 Хадгалахдаа итгэлтэй байн уу?
               </ModalConfirm>
-              <ModalConfirm color='bg-red-500' isVisible={showDelete} onClose={()=>setShowDelete(false)} button={<Button text='Устгах' extra='p-2 rounded-md bg-red-500 hover:bg-red-500/80 active:bg-red-500' onClick={()=>{setShowDelete(false)}}></Button>}>
-                Устгахдаа итгэлтэй байн уу?
+              <ModalConfirm color='bg-primary' isVisible={showEdit} onClose={()=>setShowEdit(false)} button={<Button text='Тийм' extra='p-2 rounded-md' onClick={()=>{
+                axios.post('/api/hello', {param: `${param}/edit`, data: formData, id: indexid.id}).then(res => {
+                  console.log(res.data);
+                  var result = res.data.result;
+                  if(result.success){
+                    toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
+                    console.log('result', result)
+                    resData()
+                  }
+                })
+                setShowEdit(false); setShowEditModal(false)}
+                }></Button>}>
+                Хадгалахдаа итгэлтэй байн уу?
+              </ModalConfirm>
+              <ModalConfirm color='bg-red-500' isVisible={showDelete} onClose={()=>setShowDelete(false)} button={<Button text='Устгах' extra='p-2 rounded-md bg-red-500 hover:bg-red-500/80 active:bg-red-500' onClick={()=>{
+                axios.post('/api/hello', {param: `${param}/delete`, data: formData, id: indexid.id}).then(res => {
+                  console.log(res.data);
+                  var result = res.data.result;
+                  if(result.success){
+                    toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
+                    console.log('result', result)
+                    resData()
+                  }
+                });
+                setShowDelete(false)}}></Button>}>
+                {indexid.index+1} дугаартай {name}-г устгахдаа итгэлтэй байн уу?
               </ModalConfirm>
               </>
     );
