@@ -14,17 +14,48 @@ import router, { useRouter } from 'next/router';
 
 interface TableData{
     title: string[],
-    data: (any)[][],
+    data: any[][] | undefined,
     name: string,
+    resData: any,
+    token: string,
 }
 
-export default function Table({title, data, name}: TableData){
+export default function Table({title, data, name, resData, token}: TableData){
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('Шүүлтүүр')
     const [showModal, setShowModal] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
     const [showDelete, setShowDelete] = useState(false)
     const [formData, setFormData] = useState([{name: '...', value: '...'}])
+    
+    const viewData = (id: number) => {
+      console.log('id', id);
+      axios.post('/api/hello', {param: 'prof/getById', token: token, id: id}).then(res => {
+        console.log(res.data);
+        var result = res.data.result;
+        if(result.success){
+          var temp = formData;
+          temp.length = 0;
+          for(var key in result.result[0]){
+            console.log('mykey',key)
+            
+            
+            temp.push({name: key, value: result.result[0][key]})
+          }
+          console.log('asdasd',temp)
+          setFormData(temp)
+          console.log('hh', formData)
+          //console.log('result', result)
+          //resData()
+          //rd()
+          //location.reload();
+          //localStorage.setItem('token', result.token)
+          //localStorage.setItem('user', JSON.stringify(result.result))
+          
+          //router.push('/manage')
+        }
+      })
+    }
     useEffect(()=>{
         let formDataTemp = [{name: '...', value: '...'}];
         formDataTemp.pop();
@@ -69,11 +100,12 @@ export default function Table({title, data, name}: TableData){
                       </tr>
                   </thead>
                   <tbody className='h-16 overflow-y-scroll'>
-                      {data.map((row, index)=>(
+                    
+                      {data?.map((row, index)=>(
                           <tr className={index % 2 == 0? `bg-white`: `bg-slate-100`}>
                               <td><div className='flex justify-center items-center'>{index+1}</div></td>
-                              {row.map((col)=>(
-                                <td className='pl-2'>{col}</td>
+                              {row.map((col, i)=>(
+                                i != 0? <td className='pl-2'>{col}</td>:<></>
                               ))}
                               
                               {/* <td className='pl-2'>{row.lname}</td>
@@ -82,7 +114,7 @@ export default function Table({title, data, name}: TableData){
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.profession}</div></td>
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.class}</div></td> */}
                               <td className='w-16'><div className='flex justify-center p-2 bg-gray'>
-                                <div onClick={()=>setShowModal(true)} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
+                                <div onClick={()=>{ console.log('hoho',row);viewData(row[0]);setShowModal(true);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
                                 <div onClick={()=>setShowModal(true)} className='p-2 ml-2 rounded-full hover:bg-primary/30 active:bg-primary/50 hover:text-white text-slate-500'><EditIcon/></div>
                                 <div onClick={()=>setShowDelete(true)} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div>
                               </div></td>
@@ -107,7 +139,9 @@ export default function Table({title, data, name}: TableData){
                   var result = res.data.result;
                   if(result.success){
                     console.log('result', result)
-                    location.reload();
+                    resData()
+                    //rd()
+                    //location.reload();
                     //localStorage.setItem('token', result.token)
                     //localStorage.setItem('user', JSON.stringify(result.result))
                     
