@@ -12,6 +12,7 @@ import ModalConfirm from './ModalConfrim';
 import axios from 'axios';
 import router, { useRouter } from 'next/router';
 import { toast } from 'react-toastify'
+import MySelect from './MySelect';
 
 interface TableData{
     title: string[],
@@ -19,10 +20,16 @@ interface TableData{
     name: string,
     resData: any,
     token: string,
-    param: string
+    param: string,
+    fdata: myFormData[]
 }
-
-export default function Table({title, data, name, resData, token, param}: TableData){
+interface myFormData{
+  label: string,
+  key: string,
+  default?: string,
+  value: any
+}
+export default function Table({title, data, name, resData, token, param, fdata}: TableData){
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('Шүүлтүүр')
     const [showModal, setShowModal] = useState(false)
@@ -33,7 +40,7 @@ export default function Table({title, data, name, resData, token, param}: TableD
     const [showView, setShowView] = useState(false)
     const [showEdit, setShowEdit] = useState(false)
     const [indexid, setIndexid] = useState({index: -1, id: -1}) 
-    const [formData, setFormData] = useState([{name: '...', value: '...'}])
+    const [formData, setFormData] = useState<myFormData[]>([{label: '...', key: '...', value: '...'}])
     
     const viewData = (id: number, isEdit: boolean) => {
       console.log('id', id);
@@ -44,9 +51,12 @@ export default function Table({title, data, name, resData, token, param}: TableD
         if(result.success){
           var temp = formData;
           temp.length = 0;
-          for(var key in result.result.label){
-            temp.push({name: result.result.label[key], value: result.result[key]})
-          }
+          result.result.forEach((element: myFormData) => {
+            temp.push({label: element.label, key: element.key, value: element.value, default: element.default})
+          });
+          // for(var key in result.result.label){
+          //   temp.push({name: result.result.label[key], value: result.result[key]})
+          // }
           console.log('asdasd',temp)
           setFormData(temp)
           console.log('hh', formData)
@@ -68,12 +78,13 @@ export default function Table({title, data, name, resData, token, param}: TableD
       })
     }
     useEffect(()=>{
-        let formDataTemp = [{name: '...', value: '...'}];
+        let formDataTemp =[{label: '...', key: '...', value: '...'}];
         formDataTemp.pop();
         title.forEach(element => {
             console.log(element)
             formDataTemp.push({
-                name: element,
+                key: '',
+                label: element,
                 value: ''
             })
         });
@@ -139,8 +150,9 @@ export default function Table({title, data, name, resData, token, param}: TableD
                     <div className='px-4 pb-4 text-lg'>{name} нэмэх</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {formData.map((row, index)=>(
-                            <InputBordered disabled={false} type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
+                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label}></MySelect>
                         ))}
+                        
                     </div>
                 </div>
               </Modal>
@@ -149,7 +161,7 @@ export default function Table({title, data, name, resData, token, param}: TableD
                     <div className='px-4 pb-4 text-lg'>{name}</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {formData.map((row, index)=>(
-                            <InputBordered disabled={true} type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
+                            <InputBordered disabled={true} type='text' label={row.label} value={Array.isArray(row.value)?row.default:row.value} />
                         ))}
                     </div>
                 </div>
@@ -159,7 +171,7 @@ export default function Table({title, data, name, resData, token, param}: TableD
                     <div className='px-4 pb-4 text-lg'>{name} засах</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {formData.map((row, index)=>(
-                            <InputBordered disabled={false} type='text' label={row.name} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/>
+                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} defStr={row.default}></MySelect>
                         ))}
                     </div>
                 </div>

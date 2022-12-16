@@ -44,6 +44,42 @@ const Page: NextPageWithLayout = () => {
   const router = useRouter()
   const key = `mq0)l2t[8G}(=gvpOP$&oc'O,i_E^<`
   const title = ['Код', 'Нэр', 'Нэр (ENG)', 'Үргэлжилэх хугацаа', 'Төлбөр']
+  const fdata = [
+    {
+      label: 'Код',
+      key: '',
+      value: '',
+    },
+    {
+      label: 'Нэр',
+      key: '',
+      value: '',
+    },
+    {
+      label: 'Нэр (ENG)',
+      key: '',
+      value: '',
+    },
+    {
+      label: 'Үргэлжилэх хугацаа',
+      key: '',
+      value: [
+        {
+            key: '1',
+            value: '45 хоног'
+        },
+        {
+            key: '2',
+            value: '3 сар'
+        }
+    ]
+    },
+    {
+      label: 'Төлбөр',
+      key: '',
+      value: '',
+    },
+  ]
   const tDatatemp = [
     ['BM', 'Бизнесийн удирдлага', 'Business Management', <div className='flex justify-center items-center'>45 хоног</div>, <div className='flex justify-end items-center'>400,000.00₮</div>],
     ['BM', 'Бизнесийн удирдлага', 'Business Management', <div className='flex justify-center items-center'>3 сар</div>, <div className='flex justify-end items-center'>600,000.00₮</div>],
@@ -95,7 +131,7 @@ const Page: NextPageWithLayout = () => {
   return <div>
   <div className='text-xl pl-4 pb-2'>Мэргэжилийн мэдээлэл</div>
   <div className='bg-white rounded-md'>
-      <Table title={title} data={tData} name='Мэргэжил' resData={resData} token={token} param="prof"></Table>
+      <Table title={title} data={tData} name='Мэргэжил' resData={resData} token={token} param="prof" fdata={fdata}></Table>
   </div>
   </div>
 }
