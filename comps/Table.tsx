@@ -41,6 +41,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
     const [showEdit, setShowEdit] = useState(false)
     const [indexid, setIndexid] = useState({index: -1, id: -1}) 
     const [formData, setFormData] = useState<myFormData[]>([{label: '...', key: '...', value: '...'}])
+    const [emptyData, setEmptyData] = useState(fdata)
     
     const viewData = (id: number, isEdit: boolean) => {
       console.log('id', id);
@@ -149,8 +150,8 @@ export default function Table({title, data, name, resData, token, param, fdata}:
                 <div>
                     <div className='px-4 pb-4 text-lg'>{name} нэмэх</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
-                        {formData.map((row, index)=>(
-                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label}></MySelect>
+                        {emptyData.map((row, index)=>(
+                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...emptyData]; arr[index].value = e.target.value; setEmptyData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} onChange={(value: string)=>{let arr = [...emptyData]; arr[index].default = value; setEmptyData(arr)}}></MySelect>
                         ))}
                         
                     </div>
@@ -171,13 +172,13 @@ export default function Table({title, data, name, resData, token, param, fdata}:
                     <div className='px-4 pb-4 text-lg'>{name} засах</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {formData.map((row, index)=>(
-                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} defStr={row.default}></MySelect>
+                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} defStr={row.default} onChange={(value: string)=>{let arr = [...formData]; arr[index].default = value; setFormData(arr)}}></MySelect>
                         ))}
                     </div>
                 </div>
               </Modal>
               <ModalConfirm color='bg-primary' isVisible={showConfirm} onClose={()=>setShowConfirm(false)} button={<Button text='Тийм' extra='p-2 rounded-md' onClick={()=>{
-                axios.post('/api/hello', {param: `${param}/add`, data: formData}).then(res => {
+                axios.post('/api/hello', {param: `${param}/add`, data: emptyData}).then(res => {
                   console.log(res.data);
                   var result = res.data.result;
                   if(result.success){

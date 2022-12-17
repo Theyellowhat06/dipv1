@@ -11,9 +11,10 @@ interface mySelect{
     extra: string,
     data: myData[],
     defStr?: string
+    onChange?: any,
 }
 
-export default function MySelect({extra, data, label, defStr}: mySelect) {
+export default function MySelect({extra, data, label, defStr, onChange}: mySelect) {
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('')
     
@@ -28,8 +29,7 @@ export default function MySelect({extra, data, label, defStr}: mySelect) {
         if(defStr && filterName == '')setFilterName(defStr)
     })
     
-    console.log(defStr)
-    console.log(asd)
+    
     return (
         <div>
             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{label}</label>
@@ -38,7 +38,7 @@ export default function MySelect({extra, data, label, defStr}: mySelect) {
         </div>
         <div className={`absolute bg-white w-64 rounded-lg drop-shadow-sm ${filtered? ``: `hidden`}`}>
             {data.length > 0 ?data.map((row)=>(
-            <div className='p-2 hover:bg-primary/70 hover:text-white rounded-lg cursor-pointer  transition-colors' onClick={()=>{setFilterName(row.value); setFiltered(false)}}>{row.value}</div>
+            <div className='p-2 hover:bg-primary/70 hover:text-white rounded-lg cursor-pointer  transition-colors' onClick={()=>{setFilterName(row.value); setFiltered(false); onChange(row.value)}}>{row.value}</div>
             )): ''}
         </div>
         </div>
