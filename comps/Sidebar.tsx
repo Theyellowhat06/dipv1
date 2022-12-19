@@ -21,7 +21,7 @@ const MENU_LIST = [
     { icon: <SchoolIcon/>, text: "Сонсогч", href: "/manage/student" },
     { icon: <Groups2RoundedIcon/>, text: "Анги", href: "#" },
     { icon: <AccountBalanceIcon/>, text: "Төлбөр", href: "#" },
-    { icon: <InsertDriveFileRoundedIcon/>, text: "Дифлом", href: "#" },
+    { icon: <InsertDriveFileRoundedIcon/>, text: "Диплом", href: "#" },
     { icon: <AutoStoriesIcon/>, text: "Хичээл", href: "#" },
   ];
 

@@ -38,7 +38,7 @@ export default function MySelect({extra, data, label, defStr, onChange}: mySelec
         </div>
         <div className={`absolute bg-white w-64 rounded-lg drop-shadow-sm ${filtered? ``: `hidden`}`}>
             {data.length > 0 ?data.map((row)=>(
-            <div className='p-2 hover:bg-primary/70 hover:text-white rounded-lg cursor-pointer  transition-colors' onClick={()=>{setFilterName(row.value); setFiltered(false); onChange(row.value)}}>{row.value}</div>
+            <div className='p-2 hover:bg-primary/70 hover:text-white rounded-lg cursor-pointer  transition-colors' onClick={()=>{setFilterName(row.value); setFiltered(false); onChange(row.value, row.key)}}>{row.value}</div>
             )): ''}
         </div>
         </div>

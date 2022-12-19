@@ -27,7 +27,8 @@ interface myFormData{
   label: string,
   key: string,
   default?: string,
-  value: any
+  value: any,
+  id?: number
 }
 export default function Table({title, data, name, resData, token, param, fdata}: TableData){
     const [filtered, setFiltered] = useState(false)
@@ -151,7 +152,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
                     <div className='px-4 pb-4 text-lg'>{name} нэмэх</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {emptyData.map((row, index)=>(
-                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...emptyData]; arr[index].value = e.target.value; setEmptyData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} onChange={(value: string)=>{let arr = [...emptyData]; arr[index].default = value; setEmptyData(arr)}}></MySelect>
+                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...emptyData]; arr[index].value = e.target.value; setEmptyData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} onChange={(value: string, id: number)=>{let arr = [...emptyData]; arr[index].default = value; arr[index].id = id; setEmptyData(arr)}}></MySelect>
                         ))}
                         
                     </div>
@@ -172,7 +173,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
                     <div className='px-4 pb-4 text-lg'>{name} засах</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
                         {formData.map((row, index)=>(
-                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} defStr={row.default} onChange={(value: string)=>{let arr = [...formData]; arr[index].default = value; setFormData(arr)}}></MySelect>
+                            !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} defStr={row.default} onChange={(value: string, id: number)=>{let arr = [...formData]; arr[index].default = value; arr[index].id = id; setFormData(arr)}}></MySelect>
                         ))}
                     </div>
                 </div>

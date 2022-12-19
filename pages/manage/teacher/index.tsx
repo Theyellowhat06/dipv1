@@ -36,25 +36,55 @@ ChartJS.register(
 );
 import { Line, Doughnut } from 'react-chartjs-2'
 import Table from '../../../comps/Table'
+import axios from 'axios'
 
 const Page: NextPageWithLayout = () => {
   const [token, setToken] = useState<any>('');
+  const [tData, setTData] = useState<(any)[][]>();
   const router = useRouter()
   const key = `mq0)l2t[8G}(=gvpOP$&oc'O,i_E^<`
   const title = ['Код', 'Овог', 'Нэр', 'Багшлах хэлбэр', 'Зэрэг', 'Албан тушаал']
-  const tData = [
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
-    ['NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+  const tDatatemp = [
+    [1,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
+    [2,'NT26', 'Төгөлдөр', 'Энхжин', <div className='flex justify-center items-center'>Үндсэн</div>, <div className='flex justify-center items-center'>Магистр</div>, <div className='flex justify-center items-center'>Ахлах багш</div>],
   ]
   const fdata = [
     {
       label: 'Код',
+      key: '',
+      value: '',
+    },
+    {
+      label: 'Албан тушаал',
+      key: '',
+      value: [
+        {
+            key: '1',
+            value: 'Захирал'
+        },
+        {
+            key: '2',
+            value: 'Ахлах багш'
+        },
+        {
+          key: '3',
+          value: 'Дадлагажигч'
+      }
+    ],
+    },
+    {
+      label: 'Овог',
+      key: '',
+      value: '',
+    },
+    {
+      label: 'Овог (ENG)',
       key: '',
       value: '',
     },
@@ -69,31 +99,73 @@ const Page: NextPageWithLayout = () => {
       value: '',
     },
     {
-      label: 'Үргэлжилэх хугацаа',
+      label: 'Утасны дугаар',
+      key: '',
+      value: '',
+    },
+    {
+      label: 'Зэрэг',
       key: '',
       value: [
         {
             key: '1',
-            value: '45 хоног'
+            value: 'Бакалавр'
         },
         {
             key: '2',
-            value: '3 сар'
-        }
+            value: 'Магистр'
+        },
+        {
+          key: '3',
+          value: 'Доктор'
+      }
     ]
     },
     {
-      label: 'Төлбөр',
+      label: 'Багшлах хэлбэр',
       key: '',
-      value: '',
+      value: [
+        {
+            key: '1',
+            value: 'Үндсэн'
+        },
+        {
+            key: '2',
+            value: 'Цагийн'
+        }
+    ]
     },
   ]
+  const resData =()=>{
+    console.log(token)
+    axios.post('/api/hello', {param: 'teacher/getAll', token: token}).then(res => {
+      console.log(res.data);
+      var result = res.data.result;
+      if(result.success){
+        console.log('result', result)
+        tDatatemp.length = 0
+        const temp = tData
+
+        result.result.forEach(function(e: any) {
+          //temp?.push([e.id, e.code, e.name_mn, e.name_en, <div className='flex justify-center items-center'>{e.letter_time}</div>, <div className='flex justify-end items-center'>{e.price}₮</div>])
+          tDatatemp.push([e.id,e.code, e.lname_mn, e.fname_mn, <div className='flex justify-center items-center'>{e.type_name}</div>, <div className='flex justify-center items-center'>{e.degree_name}</div>, <div className='flex justify-center items-center'>{e.position_name}</div>])
+        });
+        console.log('tdate', temp)
+        setTData(tDatatemp);
+        //localStorage.setItem('token', result.token)
+        //localStorage.setItem('user', JSON.stringify(result.result))
+        
+        //router.push('/manage')
+      }
+    })
+  }
     useEffect(()=>{
       setToken(localStorage.getItem('token'))
       console.log('token', token)
       if(token != null && token != ''){
             try{
                 verify(token, key)
+                resData()
             }catch(e){
               console.log('catch', e)
               router.push('/login')
@@ -105,7 +177,7 @@ const Page: NextPageWithLayout = () => {
   return <div>
     <div className='text-xl pl-4 pb-2'>Багшийн мэдээлэл</div>
     <div className='bg-white rounded-md'>
-        <Table title={title} data={tData} name='Багш' fdata={fdata} resData={undefined} token={token} param={'teacher'}></Table>
+        <Table title={title} data={tData} name='Багш' fdata={fdata} resData={resData} token={token} param={'teacher'}></Table>
     </div>
     </div>
 }
