@@ -4,6 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SearchIcon from '@mui/icons-material/Search';
+import PrintIcon from '@mui/icons-material/Print';
 import Button from './Button';
 import Modal from './Modal';
 import InputBordered from './InputBordered';
@@ -21,7 +22,8 @@ interface TableData{
     resData: any,
     token: string,
     param: string,
-    fdata: myFormData[]
+    fdata: myFormData[],
+    diplom?: boolean
 }
 interface myFormData{
   label: string,
@@ -30,11 +32,12 @@ interface myFormData{
   value: any,
   id?: number
 }
-export default function Table({title, data, name, resData, token, param, fdata}: TableData){
+export default function Table({title, data, name, resData, token, param, fdata, diplom}: TableData){
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('Шүүлтүүр')
     const [showModal, setShowModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
+    const [showPrintModal, setShowPrintModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
     const [showDelete, setShowDelete] = useState(false) 
@@ -92,6 +95,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
         });
         setFormData(formDataTemp)
     }, [])
+    
     return(
         <>
           <div className='flex justify-between items-center p-4'>
@@ -110,7 +114,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
               <input className='border-2 rounded-lg p-2 outline-none' onFocus={()=>{setFiltered(false)}} placeholder='Хайх'></input>
               <div ><Button text={<SearchIcon/>} extra='p-2 rounded-full'/></div>
             </div>
-              <div onClick={()=>setShowModal(true)}><Button text={<><AddIcon/><div className='px-2'>{name} нэмэх</div></>} extra='rounded-full p-2 flex items-center' /></div>
+              {diplom? <></>: <div onClick={()=>setShowModal(true)}><Button text={<><AddIcon/><div className='px-2'>{name} нэмэх</div></>} extra='rounded-full p-2 flex items-center' /></div>}
           </div>
           <div className='pb-4 h-[calc(100vh-145px)] overflow-y-scroll'>
         <table className='w-full rounded-md'>
@@ -138,9 +142,10 @@ export default function Table({title, data, name, resData, token, param, fdata}:
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.profession}</div></td>
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.class}</div></td> */}
                               <td className='w-16'><div className='flex justify-center p-2 bg-gray'>
-                                <div onClick={()=>{viewData(row[0], false);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
+                                {diplom? <div onClick={()=>setShowPrintModal(true)} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><PrintIcon/></div>
+                                :<><div onClick={()=>{viewData(row[0], false);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
                                 <div onClick={()=>{viewData(row[0], true);}} className='p-2 ml-2 rounded-full hover:bg-primary/30 active:bg-primary/50 hover:text-white text-slate-500'><EditIcon/></div>
-                                <div onClick={()=>{setIndexid({index: index, id: row[0]}); setShowDelete(true)}} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div>
+                                <div onClick={()=>{setIndexid({index: index, id: row[0]}); setShowDelete(true)}} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div></>} 
                               </div></td>
                           </tr>
                       ))}
@@ -150,7 +155,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
               <Modal isVisible={showModal} onClose={()=>setShowModal(false)} buttons={[<Button text={'Хадгалах'} extra={'p-2 rounded-md'} onClick={()=>setShowConfirm(true)}/>, <Button onClick={()=>setShowModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
                 <div>
                     <div className='px-4 pb-4 text-lg'>{name} нэмэх</div>
-                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
+                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4 max-h-[80vh] overflow-scroll'>
                         {emptyData.map((row, index)=>(
                             !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...emptyData]; arr[index].value = e.target.value; setEmptyData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} onChange={(value: string, id: number)=>{let arr = [...emptyData]; arr[index].default = value; arr[index].id = id; setEmptyData(arr)}}></MySelect>
                         ))}
@@ -158,10 +163,130 @@ export default function Table({title, data, name, resData, token, param, fdata}:
                     </div>
                 </div>
               </Modal>
+              <Modal isVisible={showPrintModal} onClose={()=>setShowPrintModal(false)} buttons={[<Button text={'Хэвлэх'} extra={'p-2 rounded-md'} onClick={()=>window.print()}/>, <Button onClick={()=>setShowPrintModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
+                <div>
+                    <div className='w-[850px] p-4 max-h-[80vh] overflow-scroll text-lg'>
+                      <div className='w-[800px] p-16 h-[1200px] drop-shadow-md bg-white rounded-md'>
+                        <div className='text-center text-2xl pt-52'>
+                          <div><b>МОНГОЛ УЛС</b></div>
+                          <div><b>УЛС ТӨР МЕНЕЖМЕНТИЙН АКАДЕМИ</b></div>
+                          <div><b>МЭРГЭШҮҮЛЭХ ДИПЛОМ</b></div>
+                          <div className=' text-lg pt-14'>Дугаар № 20220101</div>
+                        </div>
+                        <div className='text-justify pt-16'>
+                        Монгол улсын иргэн <b>БҮРГЭД</b> овогийн <b>Тэнгэрийн Хулан</b> /АБ90121212/ нь 2022 оны хичээлийн жилд Улс Төр Менежментийн Академид <b>"Соёлын удирдлага"</b> -аар мэргэшүүлэх сургалтын хөтөлбөрийг амжилттай дүүргэсэн тул "Төгсөлтийн ажил хамгаалуулах зөвлөл" -ийн шийдвэрийг үндэслэн академийн Ерөнхийлөгчийн 2022 оны 12 -р сарын 03 -ний өдөрийн 030 тоот тушаалаар <b>"Соёлын удирдлагийн менежер"</b> -ээр мэргэшүүлэх <b>Диплом</b> олгов  
+                        </div>
+                        <div className='text-center pt-16'>
+                          <div>УЗ -ийн дарга, Ерөнхийлөгч</div>
+                          <div className='h-[100px]'></div>
+                          <div>/Профессор/</div>
+                        </div>
+                      </div>
+                      <div className='w-[800px] p-16 h-[1200px] drop-shadow-md bg-white rounded-md mt-4'>
+                        <div className='text-center pt-32'>
+                          <div><b>"Соёлын удирдлага"</b> -аар мэргэшүүлэх сургэлтын</div>
+                          <div>хөтөлбөрийн 20220101 дугаартай дипломын 1-р хавсралт</div>
+                        </div>
+                        <div className='text-justify pt-8'>
+                          <div className='flex'>
+                            <div className='w-[150px]'>Ургийн овог: </div>
+                            <div className='w-[150px]'>Бүргэд</div>
+                            <div className='w-[200px]'>Регистрийн дугаар: </div>
+                            <div className='w-[150px]'>АБ90121212</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[150px]'>Эцэг/эх/-ийн нэр: </div>
+                            <div className='w-[150px]'>Тэнгэр</div>
+                            <div className='w-[200px]'>Үнэмлэх дипломын №: </div>
+                            <div className='w-[150px]'>20220101</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[150px]'>Өөрийн нэр: </div>
+                            <div className='w-[150px]'>Хулан</div>
+                            <div className='w-[200px]'>Бүртгэлийн дугаар: </div>
+                            <div className='w-[150px]'>CM22090101</div>
+                          </div>
+                        </div>
+                        <div className='text-justify pt-8'>
+                          <div className='flex font-bold'>
+                            <div className='w-[100px]'>Код</div>
+                            <div className='w-[400px]'>Судалсан Хичээл</div>
+                            <div className='w-[70px]'>Багц цаг</div>
+                            <div className='w-[70px]'>Оноо</div>
+                            <div className='w-[70px]'>Дүн</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>BGU108</div>
+                            <div className='w-[400px]'>Гүн ухаан</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>HGU111</div>
+                            <div className='w-[400px]'>Хаадын гүн ухаан</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>HHH101</div>
+                            <div className='w-[400px]'>Хувь хүний хөгжил төлөвшил</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>HSZ106</div>
+                            <div className='w-[400px]'>Харилцааны сэтгэл зүй</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>HYZ103</div>
+                            <div className='w-[400px]'>Хувь хүний хандлага, ёс зүй</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>ILU104</div>
+                            <div className='w-[400px]'>Илтгэх урлаг</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>LOG109</div>
+                            <div className='w-[400px]'>Логик сэтгэлгээ</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>MAN105</div>
+                            <div className='w-[400px]'>Манлайлал</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                          <div className='flex'>
+                            <div className='w-[100px]'>MCS102</div>
+                            <div className='w-[400px]'>Мэргэшлийн чиглүүлэх сургалт</div>
+                            <div className='w-[70px]'>1</div>
+                            <div className='w-[70px]'>96</div>
+                            <div className='w-[70px]'>A</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+              </Modal>
               <Modal isVisible={showViewModal} onClose={()=>setShowViewModal(false)} buttons={[<Button onClick={()=>setShowViewModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
                 <div>
                     <div className='px-4 pb-4 text-lg'>{name}</div>
-                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
+                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4 max-h-[80vh] overflow-scroll'>
                         {formData.map((row, index)=>(
                             <InputBordered disabled={true} type='text' label={row.label} value={Array.isArray(row.value)?row.default:row.value} />
                         ))}
@@ -171,7 +296,7 @@ export default function Table({title, data, name, resData, token, param, fdata}:
               <Modal isVisible={showEditModal} onClose={()=>setShowEditModal(false)} buttons={[<Button text={'Засах'} extra={'p-2 rounded-md'} onClick={()=>setShowEdit(true)}/>, <Button onClick={()=>setShowEditModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
                 <div>
                     <div className='px-4 pb-4 text-lg'>{name} засах</div>
-                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4'>
+                    <div className='grid grid-cols-2 gap-4 w-[600px] p-4 max-h-[80vh] overflow-scroll'>
                         {formData.map((row, index)=>(
                             !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...formData]; arr[index].value = e.target.value; setFormData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} defStr={row.default} onChange={(value: string, id: number)=>{let arr = [...formData]; arr[index].default = value; arr[index].id = id; setFormData(arr)}}></MySelect>
                         ))}

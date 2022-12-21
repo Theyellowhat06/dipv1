@@ -18,11 +18,12 @@ const MENU_LIST = [
     { icon: <WindowRoundedIcon/>, text: "Хяналтын самбар", href: "/manage" },
     { icon: <BusinessCenterIcon/>, text: "Мэргэжил", href: "/manage/profession" },
     { icon: <PersonRoundedIcon/>, text: "Багш", href: "/manage/teacher" },
-    { icon: <SchoolIcon/>, text: "Сонсогч", href: "/manage/student" },
-    { icon: <Groups2RoundedIcon/>, text: "Анги", href: "#" },
-    { icon: <AccountBalanceIcon/>, text: "Төлбөр", href: "#" },
-    { icon: <InsertDriveFileRoundedIcon/>, text: "Диплом", href: "#" },
-    { icon: <AutoStoriesIcon/>, text: "Хичээл", href: "#" },
+    { icon: <SchoolIcon/>, text: "Сонсогч", href: "/manage/student" },  
+    { icon: <AutoStoriesIcon/>, text: "Хичээл", href: "/manage/subject" },
+    { icon: <Groups2RoundedIcon/>, text: "Анги", href: "/manage/class" },
+    { icon: <AccountBalanceIcon/>, text: "Төлбөр", href: "/manage/payment" },
+    { icon: <InsertDriveFileRoundedIcon/>, text: "Диплом", href: "/manage/diplom" },
+    
   ];
 
 
