@@ -426,7 +426,7 @@ const Page: NextPageWithLayout = () => {
   return <div>
       <div className='text-xl pl-4 pb-2'>Сонсогчийн мэдээлэл</div>
       <div className='bg-white rounded-md'>
-        <Table title={title} data={tData} name='Сонсогч' resData={resData} token={token} param={'student'} fdata={fdata}></Table>
+        <Table title={title} data={tData} name='Сонсогч' resData={resData} token={token} param={'student'} fdata={fdata} student={true}></Table>
       </div>
     </div>
 }

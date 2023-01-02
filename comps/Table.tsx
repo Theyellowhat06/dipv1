@@ -14,6 +14,7 @@ import axios from 'axios';
 import router, { useRouter } from 'next/router';
 import { toast } from 'react-toastify'
 import MySelect from './MySelect';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 interface TableData{
     title: string[],
@@ -23,7 +24,8 @@ interface TableData{
     token: string,
     param: string,
     fdata: myFormData[],
-    diplom?: boolean
+    diplom?: boolean,
+    student?: boolean
 }
 interface myFormData{
   label: string,
@@ -32,7 +34,8 @@ interface myFormData{
   value: any,
   id?: number
 }
-export default function Table({title, data, name, resData, token, param, fdata, diplom}: TableData){
+
+export default function Table({title, data, name, resData, token, param, fdata, diplom, student}: TableData){
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('Шүүлтүүр')
     const [showModal, setShowModal] = useState(false)
@@ -114,7 +117,10 @@ export default function Table({title, data, name, resData, token, param, fdata, 
               <input className='border-2 rounded-lg p-2 outline-none' onFocus={()=>{setFiltered(false)}} placeholder='Хайх'></input>
               <div ><Button text={<SearchIcon/>} extra='p-2 rounded-full'/></div>
             </div>
+            <div className='flex'>
+              {student? <div className='mr-2' onClick={()=>setShowModal(true)}><Button text={<><AttachFileIcon/><div className='px-2'>Excel-ээс татах</div></>} extra='rounded-full p-2 flex items-center' /></div>: <></>}
               {diplom? <></>: <div onClick={()=>setShowModal(true)}><Button text={<><AddIcon/><div className='px-2'>{name} нэмэх</div></>} extra='rounded-full p-2 flex items-center' /></div>}
+              </div>
           </div>
           <div className='pb-4 h-[calc(100vh-145px)] overflow-y-scroll'>
         <table className='w-full rounded-md'>
@@ -163,120 +169,132 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                     </div>
                 </div>
               </Modal>
-              <Modal isVisible={showPrintModal} onClose={()=>setShowPrintModal(false)} buttons={[<Button text={'Хэвлэх'} extra={'p-2 rounded-md'} onClick={()=>window.print()}/>, <Button onClick={()=>setShowPrintModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
-                <div>
-                    <div className='w-[850px] p-4 max-h-[80vh] overflow-scroll text-lg'>
-                      <div className='w-[800px] p-16 h-[1200px] drop-shadow-md bg-white rounded-md'>
-                        <div className='text-center text-2xl pt-52'>
+              <Modal isVisible={showPrintModal} onClose={()=>setShowPrintModal(false)} buttons={[<Button text={'Хэвлэх'} extra={'p-2 rounded-md'} onClick={()=> {
+            var divContents = document.getElementById("diplom")?.innerHTML;
+            //console.log(divContents)
+            const a = window.open('', 'Print-Window');
+            a?.document.write('<html>'); 
+            a?.document.write('<body>');
+            a?.document.write(divContents? divContents: '');
+            a?.document.write('</body></html>');
+            a?.document.close();
+            a?.print();
+            setTimeout(function(){a?.close();}, 5)
+            
+}}/>, <Button onClick={()=>setShowPrintModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
+                <div id='diplom' className='font-serif'>
+                    <div className='w-[850px] p-4 max-h-[80vh] overflow-scroll text-lg' style={{width: '850px', fontSize: '1.125rem', lineHeight: '1.75rem', padding: '1rem'}}>
+                      <div className='w-[800px] p-16 h-[1100px] drop-shadow-md bg-white rounded-md' style={{height: '1000px', padding: '4rem', borderBottom: '1px solid black'}}>
+                        <div className='text-center text-2xl pt-52' style={{fontSize: '1.5rem', lineHeight: '2rem', paddingTop: '13rem', textAlign: 'center'}}>
                           <div><b>МОНГОЛ УЛС</b></div>
                           <div><b>УЛС ТӨР МЕНЕЖМЕНТИЙН АКАДЕМИ</b></div>
                           <div><b>МЭРГЭШҮҮЛЭХ ДИПЛОМ</b></div>
-                          <div className=' text-lg pt-14'>Дугаар № 20220101</div>
+                          <div className=' text-lg pt-14' style={{fontSize: '1.125rem', lineHeight: '1.75rem', paddingTop: '3.5rem'}}>Дугаар № 20220101</div>
                         </div>
-                        <div className='text-justify pt-16'>
+                        <div className='text-justify pt-16' style={{textAlign: 'justify', paddingTop: '4rem'}}>
                         Монгол улсын иргэн <b>БҮРГЭД</b> овогийн <b>Тэнгэрийн Хулан</b> /АБ90121212/ нь 2022 оны хичээлийн жилд Улс Төр Менежментийн Академид <b>"Соёлын удирдлага"</b> -аар мэргэшүүлэх сургалтын хөтөлбөрийг амжилттай дүүргэсэн тул "Төгсөлтийн ажил хамгаалуулах зөвлөл" -ийн шийдвэрийг үндэслэн академийн Ерөнхийлөгчийн 2022 оны 12 -р сарын 03 -ний өдөрийн 030 тоот тушаалаар <b>"Соёлын удирдлагийн менежер"</b> -ээр мэргэшүүлэх <b>Диплом</b> олгов  
                         </div>
-                        <div className='text-center pt-16'>
+                        <div className='text-center pt-16' style={{textAlign: 'center', paddingTop: '4rem'}}>
                           <div>УЗ -ийн дарга, Ерөнхийлөгч</div>
-                          <div className='h-[100px]'></div>
+                          <div className='h-[100px]' style={{height: '100px'}}></div>
                           <div>/Профессор/</div>
                         </div>
                       </div>
-                      <div className='w-[800px] p-16 h-[1200px] drop-shadow-md bg-white rounded-md mt-4'>
-                        <div className='text-center pt-32'>
+                      <div className='w-[800px] p-16 h-[1100px] drop-shadow-md bg-white rounded-md mt-4' style={{height: '1000px', padding: '4rem'}}>
+                        <div className='text-center pt-32' style={{textAlign: 'center', paddingTop: '8rem'}}>
                           <div><b>"Соёлын удирдлага"</b> -аар мэргэшүүлэх сургэлтын</div>
                           <div>хөтөлбөрийн 20220101 дугаартай дипломын 1-р хавсралт</div>
                         </div>
-                        <div className='text-justify pt-8'>
-                          <div className='flex'>
-                            <div className='w-[150px]'>Ургийн овог: </div>
-                            <div className='w-[150px]'>Бүргэд</div>
-                            <div className='w-[200px]'>Регистрийн дугаар: </div>
-                            <div className='w-[150px]'>АБ90121212</div>
+                        <div className='text-justify pt-8' style={{textAlign:'justify', paddingTop: '2rem'}}>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>Ургийн овог: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>Бүргэд</div>
+                            <div className='w-[200px]' style={{width: '200px'}}>Регистрийн дугаар: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>АБ90121212</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[150px]'>Эцэг/эх/-ийн нэр: </div>
-                            <div className='w-[150px]'>Тэнгэр</div>
-                            <div className='w-[200px]'>Үнэмлэх дипломын №: </div>
-                            <div className='w-[150px]'>20220101</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>Эцэг/эх/-ийн нэр: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>Тэнгэр</div>
+                            <div className='w-[200px]' style={{width: '200px'}}>Үнэмлэх дипломын №: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>20220101</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[150px]'>Өөрийн нэр: </div>
-                            <div className='w-[150px]'>Хулан</div>
-                            <div className='w-[200px]'>Бүртгэлийн дугаар: </div>
-                            <div className='w-[150px]'>CM22090101</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>Өөрийн нэр: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>Хулан</div>
+                            <div className='w-[200px]' style={{width: '200px'}}>Бүртгэлийн дугаар: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>CM22090101</div>
                           </div>
                         </div>
-                        <div className='text-justify pt-8'>
-                          <div className='flex font-bold'>
-                            <div className='w-[100px]'>Код</div>
-                            <div className='w-[400px]'>Судалсан Хичээл</div>
-                            <div className='w-[70px]'>Багц цаг</div>
-                            <div className='w-[70px]'>Оноо</div>
-                            <div className='w-[70px]'>Дүн</div>
+                        <div className='text-justify pt-8' style={{textAlign: 'justify', paddingTop: '2rem'}}>
+                          <div className='flex font-bold' style={{display: 'flex', fontWeight: 'bold'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>Код</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Судалсан Хичээл</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>Багц цаг</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>Оноо</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>Дүн</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>BGU108</div>
-                            <div className='w-[400px]'>Гүн ухаан</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>BGU108</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Гүн ухаан</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>HGU111</div>
-                            <div className='w-[400px]'>Хаадын гүн ухаан</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>HGU111</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Хаадын гүн ухаан</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>HHH101</div>
-                            <div className='w-[400px]'>Хувь хүний хөгжил төлөвшил</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>HHH101</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Хувь хүний хөгжил төлөвшил</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>HSZ106</div>
-                            <div className='w-[400px]'>Харилцааны сэтгэл зүй</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>HSZ106</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Харилцааны сэтгэл зүй</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>HYZ103</div>
-                            <div className='w-[400px]'>Хувь хүний хандлага, ёс зүй</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>HYZ103</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Хувь хүний хандлага, ёс зүй</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>ILU104</div>
-                            <div className='w-[400px]'>Илтгэх урлаг</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>ILU104</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Илтгэх урлаг</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>LOG109</div>
-                            <div className='w-[400px]'>Логик сэтгэлгээ</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>LOG109</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Логик сэтгэлгээ</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>MAN105</div>
-                            <div className='w-[400px]'>Манлайлал</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>MAN105</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Манлайлал</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
-                          <div className='flex'>
-                            <div className='w-[100px]'>MCS102</div>
-                            <div className='w-[400px]'>Мэргэшлийн чиглүүлэх сургалт</div>
-                            <div className='w-[70px]'>1</div>
-                            <div className='w-[70px]'>96</div>
-                            <div className='w-[70px]'>A</div>
+                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[100px]' style={{width: '100px'}}>MCS102</div>
+                            <div className='w-[400px]' style={{width: '400px'}}>Мэргэшлийн чиглүүлэх сургалт</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
+                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
                           </div>
                         </div>
                       </div>

@@ -3,7 +3,7 @@ import MainLayout from '../../comps/layouts/main'
 import Profilebar from '../../comps/Profilebar'
 import Sidebar from '../../comps/Sidebar'
 import { useSession, signIn, signOut } from "next-auth/react"
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 
@@ -32,8 +32,14 @@ ChartJS.register(
   Legend
 );
 import { Line, Doughnut } from 'react-chartjs-2'
+import axios from 'axios'
 
 const Page: NextPageWithLayout = () => {
+  const [student, setStudent] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+  const [teacher, setTeacher] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+  const [teacher_pt, setTeacher_pt] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+  const [sprof, setSprof] = useState([0,0,0])
+  const [tdegree, setTdegree] = useState([0,0,0])
   const router = useRouter()
   const key = `mq0)l2t[8G}(=gvpOP$&oc'O,i_E^<`
   const dataStudent = {
@@ -41,7 +47,7 @@ const Page: NextPageWithLayout = () => {
     datasets: [
       {
         label: "Шинэ сурагчид",
-        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 13, 0],
+        data: student,
         fill: true,
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "rgba(75,192,192,1)"
@@ -53,7 +59,7 @@ const Page: NextPageWithLayout = () => {
     datasets: [
       {
         label: "Шинэ багш",
-        data: [0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 2, 0],
+        data: teacher,
         fill: true,
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "#5677ad"
@@ -65,7 +71,7 @@ const Page: NextPageWithLayout = () => {
     datasets: [
       {
         label: "Шинэ цагын багш",
-        data: [0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 3, 0],
+        data: teacher_pt,
         fill: true,
         backgroundColor: "rgba(255, 205, 86,0.2)",
         borderColor: "rgb(255, 205, 86)"
@@ -80,7 +86,7 @@ const Page: NextPageWithLayout = () => {
     ],
     datasets: [{
       label: 'Сонсогч мэргэжилээр',
-      data: [200, 150, 50],
+      data: sprof,
       backgroundColor: [
         'rgb(255, 99, 132)',
         'rgb(54, 162, 235)',
@@ -92,13 +98,13 @@ const Page: NextPageWithLayout = () => {
 
   const dataPTeacher = {
     labels: [
-      'BM',
-      'HR',
-      'CM'
+      'Бакалавр',
+      'Магистр',
+      'Доктор'
     ],
     datasets: [{
-      label: 'Багш мэргэжилээр',
-      data: [7, 5, 4],
+      label: 'Багш боловсролын зэргээр',
+      data: tdegree,
       backgroundColor: [
         'rgb(255, 99, 132)',
         'rgb(54, 162, 235)',
@@ -107,12 +113,34 @@ const Page: NextPageWithLayout = () => {
       hoverOffset: 4
     }]
   };
-  
+  const resData =()=>{
+    axios.post('/api/hello', {param: 'student/getData'}).then(res => {
+      console.log(res.data);
+      var result = res.data.result;
+      if(result.success){
+        setStudent(result.result.studentgraph)
+        setTeacher(result.result.teachergraph)
+        setTeacher_pt(result.result.teacher_ptgraph)
+      }
+    })
+  }
+  const resData1 =()=>{
+    axios.post('/api/hello', {param: 'student/getPie'}).then(res => {
+      console.log(res.data);
+      var result = res.data.result;
+      if(result.success){
+        setSprof(result.result.sprofgraph)
+        setTdegree(result.result.tdegreegraph)
+      }
+    })
+  }
     useEffect(()=>{
         var token = localStorage.getItem('token')
         if(token != null){
             try{
                 verify(token, key)
+                resData();
+                resData1();
             }catch(e){
               router.push('/login')
             }
@@ -142,7 +170,7 @@ const Page: NextPageWithLayout = () => {
           </div>
         </div>
         <div className='w-1/2'>
-          <div className='text-xl py-2 pt-4 pl-4'>Багш мэргэжилээр</div>
+          <div className='text-xl py-2 pt-4 pl-4'>Багш боловсролын зэргээр</div>
           <div className='bg-white rounded-md'>
             <Doughnut data={dataPTeacher}/>
           </div>
