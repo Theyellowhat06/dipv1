@@ -12,19 +12,14 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import SchoolIcon from '@mui/icons-material/School';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import GradeIcon from '@mui/icons-material/Grade';
 
 const MENU_LIST = [
-    { icon: <WindowRoundedIcon/>, text: "Хяналтын самбар", href: "/manage" },
-    { icon: <BusinessCenterIcon/>, text: "Мэргэжил", href: "/manage/profession" },
-    { icon: <PersonRoundedIcon/>, text: "Багш", href: "/manage/teacher" },
-    { icon: <SchoolIcon/>, text: "Сонсогч", href: "/manage/student" },  
-    { icon: <AutoStoriesIcon/>, text: "Хичээл", href: "/manage/subject" },
-    { icon: <CalendarMonthIcon/>, text: "Хичээлийн хуваар", href: "/manage/schedule" },
-    { icon: <Groups2RoundedIcon/>, text: "Анги", href: "/manage/class" },
-    { icon: <AccountBalanceIcon/>, text: "Төлбөр", href: "/manage/payment" },
-    { icon: <InsertDriveFileRoundedIcon/>, text: "Диплом", href: "/manage/diplom" },
+    { icon: <WindowRoundedIcon/>, text: "Хяналтын самбар", href: "/teacher" },
+    { icon: <CalendarMonthIcon/>, text: "Хичээлийн хуваар", href: "/teacher/schedule" },
+    { icon: <GradeIcon/>, text: "Дүн бүртгэл", href: "/teacher/grade" },
     
   ];
 

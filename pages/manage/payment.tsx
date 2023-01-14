@@ -138,7 +138,7 @@ Page.getLayout = function getLayout(page: ReactElement) {
   
   
   return (
-    <MainLayout index={1}>
+    <MainLayout index={7}>
           {page}
     </MainLayout>
   )

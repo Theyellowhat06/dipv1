@@ -20,8 +20,11 @@ const Page: NextPageWithLayout = () => {
       if(result.success){
         localStorage.setItem('token', result.token)
         localStorage.setItem('user', JSON.stringify(result.result))
-        
-        router.push('/manage')
+        if(result.result.permission == 1){
+          router.push('/manage')
+        }else{
+          router.push('/teacher')
+        }
         resolve
       }else{
         reject()

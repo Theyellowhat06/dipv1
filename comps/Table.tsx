@@ -15,6 +15,8 @@ import router, { useRouter } from 'next/router';
 import { toast } from 'react-toastify'
 import MySelect from './MySelect';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import * as XLSX from 'xlsx';
+import { idText } from 'typescript';
 
 interface TableData{
     title: string[],
@@ -23,9 +25,10 @@ interface TableData{
     resData: any,
     token: string,
     param: string,
-    fdata: myFormData[],
+    fdata?: myFormData[],
     diplom?: boolean,
-    student?: boolean
+    student?: boolean,
+    teacher?: {username: string}
 }
 interface myFormData{
   label: string,
@@ -34,22 +37,65 @@ interface myFormData{
   value: any,
   id?: number
 }
+interface myExcel{
+  code: string,
+  register: string,
+  
+}
 
-export default function Table({title, data, name, resData, token, param, fdata, diplom, student}: TableData){
+export default function Table({title, data, name, resData, token, param, fdata, diplom, student, teacher}: TableData){
     const [filtered, setFiltered] = useState(false)
     const [filterName, setFilterName] = useState('Шүүлтүүр')
     const [showModal, setShowModal] = useState(false)
+    const [excelModal, setExcelModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
     const [showPrintModal, setShowPrintModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
     const [showDelete, setShowDelete] = useState(false) 
+    const [showGrade, setShowGrade] = useState(false)
+    const [myindex, setMyindex] = useState(1) 
+    const [grade, setGrade] = useState([{subject_code: 'ASD', name: 'aassdd', grade: '10'}])
+    const [studentGrade, setStudentGrade] = useState([{subject_code: '', name: '', grade: '', letter_grade: ''}])
+    const [studentCode, setStudentCode] = useState('')
+    const [studentInfo, setStudentInfo] = useState({code: '', famname: '', lname: '', fname: '', register: '', profCode: ''})
     const [showView, setShowView] = useState(false)
     const [showEdit, setShowEdit] = useState(false)
     const [indexid, setIndexid] = useState({index: -1, id: -1}) 
     const [formData, setFormData] = useState<myFormData[]>([{label: '...', key: '...', value: '...'}])
     const [emptyData, setEmptyData] = useState(fdata)
-    
+    const [items, setItems] = useState([]);
+  const elenent = 1
+  const readExcel = (file: any) => {
+    const promise = new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(file);
+
+      fileReader.onload = (e) => {
+        const bufferArray = e.target?.result;
+
+        const wb = XLSX.read(bufferArray, { type: "buffer" });
+
+        const wsname = wb.SheetNames[0];
+
+        const ws = wb.Sheets[wsname];
+
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        resolve(data);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+
+    promise.then((d: any) => {
+      console.log(d)
+      setItems(d);
+      console.log(items)
+    });
+  };
     const viewData = (id: number, isEdit: boolean) => {
       console.log('id', id);
       setIndexid({index: -1, id: id})
@@ -85,6 +131,18 @@ export default function Table({title, data, name, resData, token, param, fdata, 
         }
       })
     }
+    const profName = (code: string) =>{
+      var name = '';
+      console.log('code is: ',code)
+      if(code.toUpperCase() == 'CM'){
+        name = 'Соёлын удирдлага'
+      }else if(code.toUpperCase() == 'HR'){
+        name = 'Хүний нөөцийн удирдлага'
+      }else{
+        name = 'Бизнесийн удирдлага'
+      }
+      return name
+    }
     useEffect(()=>{
         let formDataTemp =[{label: '...', key: '...', value: '...'}];
         formDataTemp.pop();
@@ -118,8 +176,8 @@ export default function Table({title, data, name, resData, token, param, fdata, 
               <div ><Button text={<SearchIcon/>} extra='p-2 rounded-full'/></div>
             </div>
             <div className='flex'>
-              {student? <div className='mr-2' onClick={()=>setShowModal(true)}><Button text={<><AttachFileIcon/><div className='px-2'>Excel-ээс татах</div></>} extra='rounded-full p-2 flex items-center' /></div>: <></>}
-              {diplom? <></>: <div onClick={()=>setShowModal(true)}><Button text={<><AddIcon/><div className='px-2'>{name} нэмэх</div></>} extra='rounded-full p-2 flex items-center' /></div>}
+              {student? <div className='mr-2' onClick={()=>setExcelModal(true)}><Button text={<><AttachFileIcon/><div className='px-2'>Excel-ээс татах</div></>} extra='rounded-full p-2 flex items-center' /></div>: <></>}
+              {diplom || !fdata? <></>: <div onClick={()=>setShowModal(true)}><Button text={<><AddIcon/><div className='px-2'>{name} нэмэх</div></>} extra='rounded-full p-2 flex items-center' /></div>}
               </div>
           </div>
           <div className='pb-4 h-[calc(100vh-145px)] overflow-y-scroll'>
@@ -139,7 +197,7 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                           <tr className={index % 2 == 0? `bg-white`: `bg-slate-100`}>
                               <td><div className='flex justify-center items-center'>{index+1}</div></td>
                               {row.map((col, i)=>(
-                                i != 0? <td className='pl-2'>{col}</td>:<></>
+                                i != 0? col.length > 30? <td className='pl-2 max-w-[200px] text-ellipsis overflow-hidden'>{col}</td>:<td className='pl-2'>{col}</td>:<></>
                               ))}
                               
                               {/* <td className='pl-2'>{row.lname}</td>
@@ -148,10 +206,40 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.profession}</div></td>
                               <td className='pl-2'><div className='flex justify-center items-center'>{row.class}</div></td> */}
                               <td className='w-16'><div className='flex justify-center p-2 bg-gray'>
-                                {diplom? <div onClick={()=>setShowPrintModal(true)} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><PrintIcon/></div>
-                                :<><div onClick={()=>{viewData(row[0], false);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
+                                {diplom? <div onClick={()=>{
+                                  setStudentInfo({
+                                    code: row[1],
+                                    register: row[2],
+                                    famname: row[3],
+                                    lname: row[4],
+                                    fname: row[5],
+                                    profCode: row[6].props.children
+                                  })
+                                  setMyindex(index)
+                                  axios.post('/api/hello', {param: `student/getGradeByStudent`, token: token, student_code: row[1]}).then(res => {
+                                    console.log(res.data);
+                                    var result = res.data.result;
+                                    if(result.success){
+                                      setStudentGrade(result.result)
+                                      setShowPrintModal(true)
+                                    }
+                                  })
+                                  
+                                }} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><PrintIcon/></div>
+                                : fdata?<><div onClick={()=>{viewData(row[0], false);}} className='p-2 rounded-full hover:bg-blue-200 active:bg-blue-300 hover:text-white text-slate-500'><VisibilityIcon/></div>
                                 <div onClick={()=>{viewData(row[0], true);}} className='p-2 ml-2 rounded-full hover:bg-primary/30 active:bg-primary/50 hover:text-white text-slate-500'><EditIcon/></div>
-                                <div onClick={()=>{setIndexid({index: index, id: row[0]}); setShowDelete(true)}} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div></>} 
+                                <div onClick={()=>{setIndexid({index: index, id: row[0]}); setShowDelete(true)}} className='p-2 ml-2 rounded-full text-slate-500 hover:bg-red-200 active:bg-red-300 hover:text-white'><DeleteIcon/></div></>
+                                : <div onClick={()=>{
+                                  axios.post('/api/hello', {param: `student/getGrade`, token: token, student_code: row[1], teacher_code: teacher?.username}).then(res => {
+                                    console.log(res.data);
+                                    var result = res.data.result;
+                                    if(result.success){
+                                      setGrade(result.result)
+                                      setStudentCode(row[1])
+                                      setShowGrade(true)
+                                    }
+                                  })
+                                  }} className='p-2 ml-2 rounded-full hover:bg-primary/30 active:bg-primary/50 hover:text-white text-slate-500'><EditIcon/></div>} 
                               </div></td>
                           </tr>
                       ))}
@@ -162,14 +250,38 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                 <div>
                     <div className='px-4 pb-4 text-lg'>{name} нэмэх</div>
                     <div className='grid grid-cols-2 gap-4 w-[600px] p-4 max-h-[80vh] overflow-scroll'>
-                        {emptyData.map((row, index)=>(
+                        {emptyData?.map((row, index)=>(
                             !Array.isArray(row.value)?<InputBordered disabled={false} type='text' label={row.label} value={row.value} onChange={(e)=>{let arr = [...emptyData]; arr[index].value = e.target.value; setEmptyData(arr)}}/> : <MySelect extra='' data={row.value} label={row.label} onChange={(value: string, id: number)=>{let arr = [...emptyData]; arr[index].default = value; arr[index].id = id; setEmptyData(arr)}}></MySelect>
                         ))}
                         
                     </div>
                 </div>
               </Modal>
+              <Modal isVisible={showGrade} onClose={()=>setShowModal(false)} buttons={[<Button text={'Хадгалах'} extra={'p-2 rounded-md'} onClick={()=>setShowConfirm(true)}/>, <Button onClick={()=>setShowGrade(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
+                <div>
+                    <div className='px-4 pb-4 text-lg'>Дүгнэх цонх</div>
+                    <div className='min-w-[600px] p-4 max-h-[80vh] overflow-scroll'>
+                        {grade?.map((row, index)=>(
+                            <div className='flex items-center justify-center'>
+                              <div className='w-20'>{row.subject_code}</div>
+                              <div className='w-96'>{row.name}</div>
+                              <InputBordered disabled={false} type='text' label='Дүн' value={row.grade} onChange={(e)=>{let arr = [...grade]; arr[index].grade = e.target.value; setGrade(arr)}}></InputBordered>
+                            </div>
+                          ))}
+                        
+                    </div>
+                </div>
+              </Modal>
+              <Modal isVisible={excelModal} onClose={()=>setShowModal(false)} buttons={[<Button text={'Хадгалах'} extra={'p-2 rounded-md'} onClick={()=>{setShowConfirm(true); console.log(items)}}/>, <Button onClick={()=>{setExcelModal(false); setItems([])}} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
+                <div>
+                    <div className='px-4 pb-4 text-lg'>{name} Excel import</div>
+                    <div className=' w-[600px] p-4 max-h-[80vh] overflow-scroll'>
+                        <input type={'file'} onChange={(e)=>{ const file = e.target.files? e.target.files[0]: null; readExcel(file)}}></input>
+                    </div>
+                </div>
+              </Modal>
               <Modal isVisible={showPrintModal} onClose={()=>setShowPrintModal(false)} buttons={[<Button text={'Хэвлэх'} extra={'p-2 rounded-md'} onClick={()=> {
+                //console.log()
             var divContents = document.getElementById("diplom")?.innerHTML;
             //console.log(divContents)
             const a = window.open('', 'Print-Window');
@@ -179,20 +291,20 @@ export default function Table({title, data, name, resData, token, param, fdata, 
             a?.document.write('</body></html>');
             a?.document.close();
             a?.print();
-            setTimeout(function(){a?.close();}, 5)
+            setTimeout(function(){a?.close();}, 10)
             
 }}/>, <Button onClick={()=>setShowPrintModal(false)} text="Хаах" extra="rounded-md p-2 bg-blue-500 hover:bg-blue-500/80 active:bg-blue-500"></Button>]}>
                 <div id='diplom' className='font-serif'>
                     <div className='w-[850px] p-4 max-h-[80vh] overflow-scroll text-lg' style={{width: '850px', fontSize: '1.125rem', lineHeight: '1.75rem', padding: '1rem'}}>
-                      <div className='w-[800px] p-16 h-[1100px] drop-shadow-md bg-white rounded-md' style={{height: '1000px', padding: '4rem', borderBottom: '1px solid black'}}>
+                      <div className='w-[800px] p-16 h-[1100px] drop-shadow-md bg-white rounded-md' style={{height: '1000px', padding: '4rem'}}>
                         <div className='text-center text-2xl pt-52' style={{fontSize: '1.5rem', lineHeight: '2rem', paddingTop: '13rem', textAlign: 'center'}}>
                           <div><b>МОНГОЛ УЛС</b></div>
                           <div><b>УЛС ТӨР МЕНЕЖМЕНТИЙН АКАДЕМИ</b></div>
                           <div><b>МЭРГЭШҮҮЛЭХ ДИПЛОМ</b></div>
-                          <div className=' text-lg pt-14' style={{fontSize: '1.125rem', lineHeight: '1.75rem', paddingTop: '3.5rem'}}>Дугаар № 20220101</div>
+                          <div className=' text-lg pt-14' style={{fontSize: '1.125rem', lineHeight: '1.75rem', paddingTop: '3.5rem'}}>Дугаар № 2023010{myindex + 1}</div>
                         </div>
                         <div className='text-justify pt-16' style={{textAlign: 'justify', paddingTop: '4rem'}}>
-                        Монгол улсын иргэн <b>БҮРГЭД</b> овогийн <b>Тэнгэрийн Хулан</b> /АБ90121212/ нь 2022 оны хичээлийн жилд Улс Төр Менежментийн Академид <b>"Соёлын удирдлага"</b> -аар мэргэшүүлэх сургалтын хөтөлбөрийг амжилттай дүүргэсэн тул "Төгсөлтийн ажил хамгаалуулах зөвлөл" -ийн шийдвэрийг үндэслэн академийн Ерөнхийлөгчийн 2022 оны 12 -р сарын 03 -ний өдөрийн 030 тоот тушаалаар <b>"Соёлын удирдлагийн менежер"</b> -ээр мэргэшүүлэх <b>Диплом</b> олгов  
+                        Монгол улсын иргэн <b>{studentInfo.famname.toUpperCase()}</b> овогийн <b>{studentInfo.lname}ийн {studentInfo.fname}</b> /{studentInfo.register}/ нь 2022 оны хичээлийн жилд Улс Төр Менежментийн Академид <b>"{profName(studentInfo.profCode)}"</b> -аар мэргэшүүлэх сургалтын хөтөлбөрийг амжилттай дүүргэсэн тул "Төгсөлтийн ажил хамгаалуулах зөвлөл" -ийн шийдвэрийг үндэслэн академийн Ерөнхийлөгчийн 2022 оны 12 -р сарын 03 -ний өдөрийн 030 тоот тушаалаар <b>"{profName(studentInfo.profCode).substring(0,profName(studentInfo.profCode).length-1)}ын менежер"</b> -ээр мэргэшүүлэх <b>Диплом</b> олгов  
                         </div>
                         <div className='text-center pt-16' style={{textAlign: 'center', paddingTop: '4rem'}}>
                           <div>УЗ -ийн дарга, Ерөнхийлөгч</div>
@@ -202,28 +314,53 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                       </div>
                       <div className='w-[800px] p-16 h-[1100px] drop-shadow-md bg-white rounded-md mt-4' style={{height: '1000px', padding: '4rem'}}>
                         <div className='text-center pt-32' style={{textAlign: 'center', paddingTop: '8rem'}}>
-                          <div><b>"Соёлын удирдлага"</b> -аар мэргэшүүлэх сургэлтын</div>
-                          <div>хөтөлбөрийн 20220101 дугаартай дипломын 1-р хавсралт</div>
+                          <div><b>"{profName(studentInfo.profCode)}"</b> -аар мэргэшүүлэх сургэлтын</div>
+                          <div>хөтөлбөрийн 2023010{myindex + 1} дугаартай дипломын 1-р хавсралт</div>
                         </div>
                         <div className='text-justify pt-8' style={{textAlign:'justify', paddingTop: '2rem'}}>
-                          <div className='flex' style={{display: 'flex'}}>
+                          {studentInfo.famname.length > 12?<> <div className='flex' style={{display: 'flex'}}>
                             <div className='w-[150px]' style={{width: '150px'}}>Ургийн овог: </div>
-                            <div className='w-[150px]' style={{width: '150px'}}>Бүргэд</div>
+                            <div className='max-w-[150px]' style={{width: '150px'}}>{studentInfo.famname}</div>
+                            </div>
+                            <div className='flex' style={{display: 'flex'}}>
                             <div className='w-[200px]' style={{width: '200px'}}>Регистрийн дугаар: </div>
-                            <div className='w-[150px]' style={{width: '150px'}}>АБ90121212</div>
-                          </div>
-                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>{studentInfo.register}</div>
+                          </div></>: <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>Ургийн овог: </div>
+                            <div className='max-w-[150px]' style={{width: '150px'}}>{studentInfo.famname}</div>
+                            <div className='w-[200px]' style={{width: '200px'}}>Регистрийн дугаар: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>{studentInfo.register}</div>
+                          </div>}
+                          {studentInfo.lname.length > 12?<>
+                            <div className='flex' style={{display: 'flex'}}>
+                              <div className='w-[150px]' style={{width: '150px'}}>Эцэг/эх/-ийн нэр: </div>
+                              <div className='max-w-[150px]' style={{width: '150px'}}>{studentInfo.lname}</div>
+                              </div>
+                              <div className='flex' style={{display: 'flex'}}>
+                              <div className='w-[200px]' style={{width: '200px'}}>Үнэмлэх дипломын №: </div>
+                              <div className='w-[150px]' style={{width: '150px'}}>20230101</div>
+                            </div>
+                          </>:<div className='flex' style={{display: 'flex'}}>
                             <div className='w-[150px]' style={{width: '150px'}}>Эцэг/эх/-ийн нэр: </div>
-                            <div className='w-[150px]' style={{width: '150px'}}>Тэнгэр</div>
+                            <div className='max-w-[150px]' style={{width: '150px'}}>{studentInfo.lname}</div>
                             <div className='w-[200px]' style={{width: '200px'}}>Үнэмлэх дипломын №: </div>
-                            <div className='w-[150px]' style={{width: '150px'}}>20220101</div>
-                          </div>
-                          <div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>2023010{myindex + 1}</div>
+                          </div>}
+                          {studentInfo.fname.length > 12?<>
+                            <div className='flex' style={{display: 'flex'}}>
                             <div className='w-[150px]' style={{width: '150px'}}>Өөрийн нэр: </div>
-                            <div className='w-[150px]' style={{width: '150px'}}>Хулан</div>
+                            <div className='w-[150px]' style={{width: '150px'}}>{studentInfo.fname}</div>
+                            </div>
+                            <div className='flex' style={{display: 'flex'}}>
                             <div className='w-[200px]' style={{width: '200px'}}>Бүртгэлийн дугаар: </div>
-                            <div className='w-[150px]' style={{width: '150px'}}>CM22090101</div>
+                            <div className='w-[150px]' style={{width: '150px'}}>{studentInfo.code}</div>
                           </div>
+                          </>:<div className='flex' style={{display: 'flex'}}>
+                            <div className='w-[150px]' style={{width: '150px'}}>Өөрийн нэр: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>{studentInfo.fname}</div>
+                            <div className='w-[200px]' style={{width: '200px'}}>Бүртгэлийн дугаар: </div>
+                            <div className='w-[150px]' style={{width: '150px'}}>{studentInfo.code}</div>
+                          </div>}
                         </div>
                         <div className='text-justify pt-8' style={{textAlign: 'justify', paddingTop: '2rem'}}>
                           <div className='flex font-bold' style={{display: 'flex', fontWeight: 'bold'}}>
@@ -233,14 +370,17 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                             <div className='w-[70px]' style={{width: '70px'}}>Оноо</div>
                             <div className='w-[70px]' style={{width: '70px'}}>Дүн</div>
                           </div>
-                          <div className='flex' style={{display: 'flex'}}>
-                            <div className='w-[100px]' style={{width: '100px'}}>BGU108</div>
-                            <div className='w-[400px]' style={{width: '400px'}}>Гүн ухаан</div>
-                            <div className='w-[70px]' style={{width: '70px'}}>1</div>
-                            <div className='w-[70px]' style={{width: '70px'}}>96</div>
-                            <div className='w-[70px]' style={{width: '70px'}}>A</div>
-                          </div>
-                          <div className='flex' style={{display: 'flex'}}>
+                          {studentGrade.map((element)=>(
+                            <div className='flex' style={{display: 'flex'}}>
+                              <div className='w-[100px]' style={{width: '100px'}}>{element.subject_code}</div>
+                              <div className='w-[400px]' style={{width: '400px'}}>{element.name}</div>
+                              <div className='w-[70px]' style={{width: '70px'}}>{elenent}</div>
+                              <div className='w-[70px]' style={{width: '70px'}}>{element.grade}</div>
+                              <div className='w-[40px] text-end' style={{width: '40px', textAlign: 'end'}}>{element.letter_grade}</div>
+                            </div>
+                          ))}
+                          
+                          {/* <div className='flex' style={{display: 'flex'}}>
                             <div className='w-[100px]' style={{width: '100px'}}>HGU111</div>
                             <div className='w-[400px]' style={{width: '400px'}}>Хаадын гүн ухаан</div>
                             <div className='w-[70px]' style={{width: '70px'}}>1</div>
@@ -295,7 +435,7 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                             <div className='w-[70px]' style={{width: '70px'}}>1</div>
                             <div className='w-[70px]' style={{width: '70px'}}>96</div>
                             <div className='w-[70px]' style={{width: '70px'}}>A</div>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </div>
@@ -322,16 +462,43 @@ export default function Table({title, data, name, resData, token, param, fdata, 
                 </div>
               </Modal>
               <ModalConfirm color='bg-primary' isVisible={showConfirm} onClose={()=>setShowConfirm(false)} button={<Button text='Тийм' extra='p-2 rounded-md' onClick={()=>{
-                axios.post('/api/hello', {param: `${param}/add`, data: emptyData}).then(res => {
-                  console.log(res.data);
-                  var result = res.data.result;
-                  if(result.success){
-                    toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
-                    console.log('result', result)
-                    resData()
+                if(teacher){
+                  axios.post('/api/hello', {param: `student/setGrade`, data: grade, student_code: studentCode, teacher_code: teacher.username}).then(res => {
+                    console.log(res.data);
+                    var result = res.data.result;
+                    if(result.success){
+                      toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
+                      console.log('result', result)
+                      resData()
+                      setShowConfirm(false)
+                      setShowGrade(false)
+                    }
+                  })
+                }else{
+                  if(items.length > 0){
+                    axios.post('/api/hello', {param: `${param}/addArr`, data: items}).then(res => {
+                      console.log(res.data);
+                      var result = res.data.result;
+                      if(result.success){
+                        toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
+                        console.log('result', result)
+                        resData()
+                      }
+                    })
+                  }else{
+                    axios.post('/api/hello', {param: `${param}/add`, data: emptyData}).then(res => {
+                      console.log(res.data);
+                      var result = res.data.result;
+                      if(result.success){
+                        toast(result.msg, { hideProgressBar: true, autoClose: 2000, type: 'success', position: 'top-center' })
+                        console.log('result', result)
+                        resData()
+                      }
+                    })
                   }
-                })
-                setShowConfirm(false); setShowModal(false)}
+                }
+                
+                setShowConfirm(false); setShowModal(false); setExcelModal(false)}
                 }></Button>}>
                 Хадгалахдаа итгэлтэй байн уу?
               </ModalConfirm>
